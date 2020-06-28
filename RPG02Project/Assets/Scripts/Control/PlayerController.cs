@@ -17,7 +17,7 @@ namespace RPG.Control
 
             if(InteractWithCombat()) return;
             if(InteractWithMovement()) return;
-            print("noting to do");
+            //print("noting to do");
         }
 
         private bool InteractWithCombat()
