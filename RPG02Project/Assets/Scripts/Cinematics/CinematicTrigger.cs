@@ -17,6 +17,8 @@ namespace RPG.Cinematics
             if (!alreadyTriggered && other.gameObject.tag == "Player") 
             {
 
+                Debug.Log("Trrigered");
+
                 alreadyTriggered = true;
                 GetComponent<PlayableDirector>().Play();
 
