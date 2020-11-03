@@ -9,7 +9,6 @@ namespace RPG.SceneManagement
 {
     public class Portal : MonoBehaviour
     {
-
         enum DestinationIdentifier
         {
             A, B, C, D, E
@@ -18,6 +17,10 @@ namespace RPG.SceneManagement
         [SerializeField] int sceneToLoad = -1;
         [SerializeField] Transform spawnPoint;
         [SerializeField] DestinationIdentifier destination;
+
+        [SerializeField] float fadeOutTime = 1f;
+        [SerializeField] float fadeInTime = 2f;
+        [SerializeField] float fadeWaitTime = 0.5f;
 
 
         private void OnTriggerEnter(Collider other) 
@@ -41,14 +44,26 @@ namespace RPG.SceneManagement
             }
 
             DontDestroyOnLoad(gameObject);
+
+            Fader fader = FindObjectOfType<Fader>();
+            yield return fader.FadeOut(fadeOutTime);
+
+            SavingWrapper wrapper = FindObjectOfType<SavingWrapper>();
+            wrapper.Save();
+
             yield return SceneManager.LoadSceneAsync(sceneToLoad);
+
+            wrapper.Load();
 
             Portal otherPortal = GetOtherPortal();
             UpdatePlayer(otherPortal);
 
+            wrapper.Save();
+
+            yield return new WaitForSeconds(fadeWaitTime);
+            yield return fader.FadeIn(fadeInTime);
             
             Destroy(gameObject);
-            
 
         }
 
@@ -56,8 +71,10 @@ namespace RPG.SceneManagement
         {
 
             GameObject player = GameObject.FindWithTag("Player");
+            player.GetComponent<NavMeshAgent>().enabled = false;
             player.GetComponent<NavMeshAgent>().Warp(otherPortal.spawnPoint.position);
             player.transform.rotation = otherPortal.spawnPoint.rotation;
+            player.GetComponent<NavMeshAgent>().enabled = true;
 
             //player.GetComponent<NavMeshAgent>().enabled = false;
             //player.GetComponent<NavMeshAgent>().enabled = true;
@@ -76,8 +93,8 @@ namespace RPG.SceneManagement
 
             return null;
         }
+        
     }
-
 
 }
 
